@@ -1,0 +1,246 @@
+프로젝트
+-mini 쇼핑몰(대분류1개)
+-와디즈(클라우딩)
+-그룹웨어
+-ERP(급여관리, 인사관리)
+-다중게시판
+-전자투표
+
+pk,fk -> inner join
+t1, t2, t3
+
+대분류  소분류  상품등록
+
+부서    직책   사원
+dept   pos   emp
+
+use grpdb;
+
+create table dept(
+dept_name varchar(20) not null,
+primary key(dept_name)
+);
+
+INSERT INTO dept VALUES('인사과');
+INSERT INTO dept VALUES('비서실');
+INSERT INTO dept VALUES('임원실');
+
+
+create table pos(
+pos_name varchar(20) not null,
+dept_name varchar(20) not null,
+primary key(pos_name),
+foreign key(dept_name) references dept(dept_name) 
+ON UPDATE cascade
+ON DELETE restrict
+);
+
+delete from pos;
+
+INSERT INTO pos VALUES('대표이사', '임원실');
+INSERT INTO pos VALUES('기술이사', '임원실');
+
+INSERT INTO pos VALUES('비서실장', '비서실');
+
+INSERT INTO pos VALUES('인사과장', '인사과');
+INSERT INTO pos VALUES('대리', '인사과');
+INSERT INTO pos VALUES('사원', '인사과');
+
+임원실(2), 인사과(3), 비서실(1)
+
+부서별 직책의 수를 출력하시오. 단 직책 수가 2이상인 것만 출력
+SELECT dept_name, COUNT(pos_name) FROM pos 
+GROUP BY dept_name 
+HAVING COUNT(pos_name) >= 2;
+
+create table emp(
+emp_id int not null auto_increment,
+emp_email varchar(50) not null,
+emp_passwd varchar(20) not null,
+emp_name varchar(20) not null,
+pos_name varchar(20) not null,
+primary key(emp_id),
+foreign key(pos_name) references pos(pos_name) 
+ON UPDATE cascade 
+ON DELETE restrict
+);
+
+INSERT INTO emp VALUES(NULL, 'mail@mail.com', '1111', '홍길동', '인사과장');
+INSERT INTO emp VALUES(NULL, 'mail2@mail.com', '2222', '이철수', '인사과장');
+
+INSERT INTO emp VALUES(NULL, 'mail3@mail.com', '3333', '나대표', '대표이사');
+
+INSERT INTO emp VALUES(NULL, 'mail4@mail.com', '0000', '김비서', '비서실장');
+
+인사과장(2), 대표이사(1), 비서실장(1)
+직책별 사원 수 구하시오 단 직책의 내림차순으로 출력하시오.
+
+t1(dept) t2(pos) t3(emp)
+
+부서(dept), 직책순으로 출력하시오(t1, t2)
+... t1 INNER JOIN t2 ON t1.컬럼 = t2.컬럼
+
+SELECT D.dept_name, P.pos_name FROM dept D 
+INNER JOIN pos P ON D.dept_name = P.dept_name;
+
+부서(dept), 직책, 사원명을 출력하시오(t1, t2, t3)
+... t1 INNER JOIN t2 ON t1.컬럼 = t2.컬럼 
+INNER JOIN t3 ON t2.컬럼 = t3.컬럼;
+
+부서명으로 오름차순 정렬 후 최근 1개만 출력하시오
+SELECT 
+A.dept_name, B.pos_name, C.emp_name 
+FROM dept A INNER JOIN pos B 
+ON A.dept_name = B.dept_name INNER join emp C 
+ON B.pos_name = C.pos_name 
+ORDER BY A.dept_name ASC 
+LIMIT 0, 1;
+
+=======================================
+
+create, drop, alter
+
+insert, select, update, delete
+
+//답변형
+번호, 제목, 작성자, 작성일, 조회수
+create table board(
+b_id int not null auto_increment,
+b_title varchar(255),
+b_writer varchar(10),
+b_date datetime,
+b_visit int,
+b_grp int,
+b_depth int,
+b_level int,
+primary key(b_id)
+);
+
+INSERT INTO board(b_title, b_writer, b_date) VALUES('공지사항', '관리자', now());
+
+INSERT INTO board(b_title, b_writer, b_date) VALUES('답변형 게시판', '관리자2', now());
+INSERT INTO board(b_title, b_writer, b_date) VALUES('이미지 게시판', '관리자3', now());
+SELECT * FROM board;
+
+1. 전체 게시물 수를 출력하시오.
+
+2. 전체 게시물을 pk로 내림차순 정렬하시오.
+
+3. 게시물 중 가장 오래된 2개를 출력하시오.
+
+4. 게시물 제목이 '공지사항'인 것만 출력하시오.
+SELECT * FROM board WHERE b_title = '공지사항';
+
+5. 게시물 제목이 '게시판'이란 글자를 포함하고 있는 값을 출력하시오.
+SELECT * FROM board WHERE b_title like '%게시판%';
+
+6. 게시물이 2023년에 등록된 자료만 내림차순으로 출력하시오.
+
+
+UPDATE 테이블이름 SET 
+변경할컬럼명1='변경할값1', 변경할컬럼명2='변경할값2'...
+WHERE 조건 = 값;
+
+1. pk가 1번 게시물의 작성자를 '홍길동'으로 수정하시오.
+UPDATE board SET b_writer = '홍길동' WHERE b_id = 1;
+SELECT * FROM board;
+
+2. pk가 1번 게시물의 작성자를 '김철수', 등록일을 현재날짜로 수정하시오.
+UPDATE board SET b_writer = '김철수', b_date = now() WHERE b_id = 1;
+
+UPDATE 테이블이름 SET 변경할컬럼명1='변경할값1', 변경할컬럼명2='변경할값2'...
+WHERE 조건 = 값;
+
+2. pk가 1번 게시물의 
+작성자를 '김철수', 등록일을 현재날짜, 제목을 'QnA 게시판'으로 수정하시오.
+
+UPDATE board SET b_title = 'QnA 게시판', b_writer='김철수', b_date = now() 
+WHERE b_id = 1;
+SELECT * FROM board;
+
+
+3. board 테이블의 작성자 이름을 모두 '코리아'로 수정하시오.
+UPDATE board SET b_writer = '코리아';
+
+SELECT * FROM board;
+
+UPDATE board SET b_writer = '';
+
+
+DDL
+DML
+DCL : GRANT, REVOKE, VIEW
+------------------------------
+
+DELETE 데이터 삭제
+DELETE FROM board WHERE b_title = '답변형 게시판';
+SELECT * FROM board;
+
+게시판 제목이 '답변형 게시판'인 레코드를 삭제하시오.
+
+게시판 제목이 '이미지 게시판'이면서 pk가 3인 레코드를 삭제하시오.
+DELETE FROM board WHERE b_title = '이미지 게시판' AND b_id = 3;
+
+게시판 제목이 'QnA 게시판'이면서 pk가 1인 레코드 검색하시오.
+SELECT * FROM board WHERE b_title = 'QnA 게시판' AND b_id = 1;
+
+게시판 내용 전체를 삭제하시오
+
+INSERT INTO 테이블명 VALUES();
+SELECT * FROM 테이블명;
+
+UPDATE 테이블명 SET 바꿀컬럼 = 바꿀값 WHERE 바꿀pk = 값;
+DELETE FROM 테이블명 WHERE 삭제할pk = 값;
+
+
+CREATE View 보안 -> 필요한 컬럼만 보여줄 때
+물리테이블 X -> 논리적인 테이블(테이블 복사가 X)
+
+CREATE TABLE MEMBER -> CREATE TABLE MEMBER2;
+번호, 아이디, 이름, 비밀번호, 주소
+-> 번호, 주소
+
+Create VIEW MEMBER_V -> DROP VIEW MEMBER_V;
+
+
+번호, 이름, 주소, 주민번호 -> view
+CREATE TABLE member(
+id int not null auto_increment,
+name varchar(20),
+addr varchar(20),
+jumin char(14),
+primary key(id)
+);
+INSERT INTO member VALUES(NULL, '홍길동', '부산광역시', '001234-567890');
+
+CREATE TABLE member3 
+AS SELECT id, addr FROM member; 물리적 테이블
+
+CREATE VIEW member_v 
+AS SELECT id, addr FROM member; 논리적 테이블
+
+show tables;
+
+SELECT * FROM member_v;
+
+DROP VIEW member_v;
+show tables;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

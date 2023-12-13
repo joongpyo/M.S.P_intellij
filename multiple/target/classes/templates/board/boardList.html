@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>코리아아이티 아카데미 > 게시판 목록입니다.</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/boardList.css}">
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <h3 class="en">
+                <i class="fa-solid fa-caret-right"></i> KOREA IT ACADEMY >
+                <span class="ko">[[${config.configTitle}]]</span>
+            </h3>
+            <h3>게시물 수 : [[${total}]]</h3>
+        </div>
+
+        <table th:style="|border-top: 3px solid ${config.configColor}|">
+            <thead>
+                <tr>
+                    <th><input type="checkbox"></th>
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>조회수</th>
+                    <th>등록일</th>
+                    <th>첨부<br />파일</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="board, k: ${board}">
+                    <td>
+                        <input type="checkbox">
+                    </td>
+                    <td>
+                        [[${total - (((page.page - 1) * page.pageCount) + k.index)}]]
+                    </td>
+                    <td style="text-align:left;margin-left:10px;">
+                        <strong>
+                            <a th:href="@{/board/boardView?(configCode=${configCode}, id=${board.id})}">[[${board.subject}]]</a>
+                        </strong>
+                    </td>
+                    <td>[[${board.writer}]]</td>
+                    <td>[[${board.visit}]]</td>
+                    <td>[[${board.regdate}]]</td>
+                    <td>
+                        <th:block th:if="${board.isFiles eq 'Y'}">
+                            <span>YES</span>
+                        </th:block>
+                    </td>
+                    <td>
+                        <a href="">
+                            <button type="button" class="btn green">수정</button>
+                        </a>
+                        <a href="#" th:onclick="deleteCheck([[${configCode}]], [[${board.id}]])">
+                            <button type="button" class="btn red">삭제</button>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="bottom">
+            <div class="bottom-left">
+                <a href="#" th:if="${page.page <= 1}">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+                <a th:href="@{/board/boardList?(configCode=${configCode}, page=${page.page - 1})}" th:unless="${page.page <= 1}">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+
+                <th:block th:each="i : ${ #numbers.sequence(page.startPage, page.endPage, 1) }">
+                    <th:block th:if="${page.page eq i}">
+                        <a class="active" th:href="@{/board/boardList?(configCode=${configCode}, page=${i})}">
+                            [[${i}]]
+                        </a>
+                    </th:block>
+
+                    <th:block th:unless="${page.page eq i}">
+                        <a th:href="@{/board/boardList?(configCode=${configCode}, page=${i})}">
+                            [[${i}]]
+                        </a>
+                    </th:block>
+
+
+                </th:block>
+
+
+                <a href="#" th:if="${page.page >= page.totalPage}">
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+                <a th:href="@{/board/boardList?(configCode=${configCode}, page=${page.page + 1})}" th:unless="${page.page >= page.totalPage}">
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+            </div>
+
+            <div class="bottom-center">
+                <form action="/board/boardList" method="get">
+                    <input type="hidden" name="configCode" th:value="${configCode}">
+                    <select name="searchType">
+                        <option value="writer">작성자</option>
+                        <option value="content">내용</option>
+                    </select>
+                    <input type="text" name="words" required>
+                    <button type="submit" class="btn blue">검색</button>
+                </form>
+            </div>
+
+            <div class="bottom-right">
+                <a th:href="@{/board/boardList?(configCode=${configCode})}">
+                    <button type="button" class="btn black">게시물목록</button>
+                </a>
+                <a th:href="@{/board/boardWrite?(configCode=${configCode})}">
+                    <button type="button" class="btn blue">게시물작성</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function deleteCheck(configCode, id) {
+            if( confirm(id + "번째 게시물을 삭제하시겠습니까?") ) {
+                location.href = "/board/boardDelete?configCode="+configCode+"&id="+id;
+            }
+        }
+    </script>
+</body>
+</html>
